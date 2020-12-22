@@ -32,7 +32,7 @@ class MyDS(Tell1Dataset):
     filename_format = '%Y-%m-%d'
     filename_regex_format = r'\d{4}-\d{2}-\d{2}.csv'
 
-datapath = "../data/calibrations/"
+datapath = "../../data/calibrations/"
 data_list = MyDS.get_filepaths_from_dir(datapath)
 mds = MyDS(data_list, read=True)
 
@@ -47,10 +47,11 @@ data = {'hit threshold':mds.dfh.df,'pedestal' : mds.dfp.df,'low threshold': mds.
 # ### Clearing data
 
 for key in data:
+    print(key)
     data[key] = data[key].drop(['Zmod','slot_label','mod_nr','sensor_number','type','datetime'],axis=1)
-    data[key] = {'phi':data[key][(data[key]['mod_type'] =='VELO_phi') & (data[key]['sensor_type'] == 'phi')],\
-                    'r_phi':data[key][(data[key]['mod_type'] =='VELO_phi') & (data[key]['sensor_type'] == 'R')],\
-                 'r_RX':data[key][(data[key]['mod_type'] =='VELO_Rx')]}
+    print(data[key].sensor_type.unique())
+    data[key] = {'phi':data[key][data[key]['sensor_type'] == 'phi'],\
+                    'r_phi':data[key][data[key]['sensor_type'] == 'R']}
     for typ in data[key]:
         data[key][typ] = data[key][typ].drop(['mod_type','sensor_type'],axis=1)
 
@@ -126,7 +127,54 @@ def do_a_pca_and_draw_a_plot(data):
     plt.suptitle("PCA results",fontsize=16)
     for mod_key in data:
         draw_a_plot(data[mod_key],mod_key)
+        plt.tight_layout()
 
 
 
-do_a_pca_and_draw_a_plot(data)
+import plotly.express as px
+
+d = data['hit threshold']['phi']
+
+# +
+single_data = {k: v.drop('sensor',axis=1) for k, v in d.groupby('sensor')}
+alpha = 0.4
+thisrun = []
+for sensor_data_key in single_data:
+    dataset = single_data[sensor_data_key]
+    
+    dataset_after_pca = full_pca(dataset,procentage_or_num_of_comp)
+    dataset_after_pca["sensor"] = str(int(sensor_data_key))
+    #scatter = plt.scatter(dataset_after_pca.iloc[:,0], dataset_after_pca.iloc[:,1], edgecolor='none', alpha=alpha,label=sensor_data_key)
+    #plt.legend(title="Module nr.")
+    thisrun.append(dataset_after_pca)
+
+
+# -
+
+alldat = pd.concat(thisrun)
+
+# + pycharm={"name": "#%%\n"}
+fig = px.scatter(alldat, x="Principal component 1", y="Principal component 2", color='sensor', opacity=0.5)
+fig.show()
+
+
+# +
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
