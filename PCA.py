@@ -155,7 +155,8 @@ alldat = pd.concat(thisrun)
 
 # + pycharm={"name": "#%%\n"}
 fig = px.scatter(alldat, x="Principal component 1", y="Principal component 2", color='sensor', opacity=0.5)
-fig.show()
+fig.show(renderer="notebook") 
+
 
 
 # +
