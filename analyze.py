@@ -1,5 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:light
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.10.2
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
 import os
 import torch
 import pytorch_lightning as pl
@@ -9,23 +22,20 @@ from pytorch_lightning.loggers.neptune import NeptuneLogger
 from pytorch_lightning.callbacks import LearningRateMonitor
 from datetime import datetime
 datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-#custom components
+
 from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
 from calibration_dataset import Tell1Dataset
-
 
 #trainig parameters
 PARAMS = {'max_epochs': 1,
           'learning_rate': 0.02,
           'batch_size': 64,
           'gpus': 1,
-          'experiment_name': 'large-net normal-epochs standarized SGD no-dropout bigger-batches relu shuffle',
-          'tags': ['large-net', 'normal-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu',
+          'experiment_name': 'testing small-net  standarized SGD no-dropout bigger-batches relu shuffle',
+          'tags': ['testing', 'large-net', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu',
                    'shuffle'],
           'source_files': ['analyze_Pawel.py', 'networks.py']
 }
-
-datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
 
 
 class MyDS(Tell1Dataset):
@@ -33,6 +43,7 @@ class MyDS(Tell1Dataset):
     filename_regex_format = r'\d{4}-\d{2}-\d{2}.csv'
 
 
+# +
 #loading the data
 datapath = os.path.join("data", "calibrations")
 data_list = MyDS.get_filepaths_from_dir(datapath)
@@ -62,6 +73,8 @@ dfp_r = dfp_r.sub(dfp_r.mean(1), axis=0).div(dfp_r.std(1), axis=0)
 dfp_phi = dfp_phi.sub(dfp_phi.mean(1), axis=0).div(dfp_phi.std(1), axis=0)
 
 
+# -
+
 def make_loader(dataset):
     train, test = train_test_split(dataset, test_size=0.2)
     train_target = torch.tensor(train.values, dtype=torch.float)
@@ -86,6 +99,7 @@ def make_model_trainer(s, neptune_logger, lr):
     return model, tr
 
 
+
 def run_experiment(dataset, datasetName, par):
     train_loader, test_loader = make_loader(dataset)
     s = dataset.shape[1]
@@ -105,14 +119,17 @@ def run_experiment(dataset, datasetName, par):
                                                         "trained_model.ckpt"))
 
 
-if __name__ == "__main__":
-    for d in datasetNames:
-        if not os.path.exists(os.path.join('models', PARAMS['experiment_name'], d)):
-            os.makedirs(os.path.join('models', PARAMS['experiment_name'], d))
 
-    run_experiment(dfh, 'dfh', PARAMS)
-    #run_experiment(dfh_r, 'dfhr', PARAMS)
-    #run_experiment(dfh_phi, 'dfhphi', PARAMS)
-    #run_experiment(dfp, 'dfp', PARAMS)
-    #run_experiment(dfp_r, 'dfpr', PARAMS)
-    #run_experiment(dfp_phi, 'dfpphi', PARAMS)
+# +
+datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
+
+for d in datasetNames:
+    if not os.path.exists(os.path.join('models', PARAMS['experiment_name'], d)):
+        os.makedirs(os.path.join('models', PARAMS['experiment_name'], d))
+
+run_experiment(dfh, 'dfh', PARAMS)
+#run_experiment(dfh_r, 'dfhr', PARAMS)
+#run_experiment(dfh_phi, 'dfhphi', PARAMS)
+#run_experiment(dfp, 'dfp', PARAMS)
+#run_experiment(dfp_r, 'dfpr', PARAMS)
+#run_experiment(dfp_phi, 'dfpphi', PARAMS)
