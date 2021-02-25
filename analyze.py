@@ -22,6 +22,8 @@ from pytorch_lightning.loggers.neptune import NeptuneLogger
 from pytorch_lightning.callbacks import LearningRateMonitor
 from datetime import datetime
 datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+import plotly.express as px
+import pandas as pd
 
 from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
 from calibration_dataset import Tell1Dataset
@@ -58,11 +60,14 @@ dfp_phi = mds.dfp['phi'].df.iloc[:, 9:]
 
 
 dfh_metadata = mds.dfh.df.iloc[:, :9]
+print('dfh_metadata')
+print(dfh_metadata)
 dfh_r_metadata = mds.dfh['R'].df.iloc[:, :9]
 dfh_phi_metadata = mds.dfh['phi'].df.iloc[:, :9]
 dfp_metadata = mds.dfp.df.iloc[:, :9]
 dfp_r_metadata = mds.dfp['R'].df.iloc[:, :9]
 dfp_phi_metadata = mds.dfp['phi'].df.iloc[:, :9]
+
 
 #scaling input data
 dfh = dfh.sub(dfh.mean(1), axis=0).div(dfh.std(1), axis=0)
@@ -100,7 +105,26 @@ def make_model_trainer(s, neptune_logger, lr):
 
 
 
-def run_experiment(dataset, datasetName, par):
+# +
+def interactive_plot(dataset, datasetName, metadata, model):
+    reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
+    reducedData = reducedData.detach().numpy()
+     
+    indexesList = metadata.index.values.tolist()
+    xyDF = pd.DataFrame(reducedData, index=indexesList, columns=['x', 'y'])
+    resultDF = pd.concat([metadata, xyDF], axis=1)
+
+#    fig = px.scatter(resultDF, x="x", y="y", animation_frame="datetime", color="sensor")
+    fig = px.scatter(resultDF, x="x", y="y", color="sensor")
+
+    fig["layout"].pop("updatemenus") # optional, drop animation buttons
+    fig.show()
+
+
+
+# -
+
+def run_experiment(dataset, datasetName, par, metadata):
     train_loader, test_loader = make_loader(dataset)
     s = dataset.shape[1]
     neptune_logger = NeptuneLogger(
@@ -117,6 +141,7 @@ def run_experiment(dataset, datasetName, par):
     torch.save(model, os.path.join('models', PARAMS['experiment_name'], datasetName, "trained_model.ckpt"))
     neptune_logger.experiment.log_artifact(os.path.join('models', PARAMS['experiment_name'], datasetName,
                                                         "trained_model.ckpt"))
+    interactive_plot(dataset, datasetName, metadata, model)
 
 
 
@@ -127,9 +152,9 @@ for d in datasetNames:
     if not os.path.exists(os.path.join('models', PARAMS['experiment_name'], d)):
         os.makedirs(os.path.join('models', PARAMS['experiment_name'], d))
 
-run_experiment(dfh, 'dfh', PARAMS)
-#run_experiment(dfh_r, 'dfhr', PARAMS)
-#run_experiment(dfh_phi, 'dfhphi', PARAMS)
-#run_experiment(dfp, 'dfp', PARAMS)
-#run_experiment(dfp_r, 'dfpr', PARAMS)
-#run_experiment(dfp_phi, 'dfpphi', PARAMS)
+run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
+#run_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
+#run_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
+#run_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
+#run_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
+#run_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)

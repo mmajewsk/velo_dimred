@@ -12,10 +12,10 @@ PARAMS = {'max_epochs': 1,
           'learning_rate': 0.05,
           'batch_size': 64,
           'gpus': 1,
-          'experiment_name': 'large-net normal-epochs standarized SGD no-dropout bigger-batches relu shuffle',
-          'tags': ["testing"],
+          'experiment_name': 'small-net more-epochs standarized SGD no-dropout bigger-batches relu shuffle',
+          'tags': ['small-net', 'more-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
           'source_files': ['analyze_Pawel.py', 'networks.py'],
-          'experiment_id': 'VEL-408'
+          'experiment_id': 'VEL-374'
 }
 
 datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
@@ -67,7 +67,7 @@ def plot(dataset, datasetName, metadata, exp_name, exp_id):
 
     model = torch.load(model_path)
 
-    reducedData = model.enc.forward(torch.tensor(dfh.values, dtype=torch.float))
+    reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
     reducedData = reducedData.detach().numpy()
 
     x2DList = []
@@ -112,8 +112,8 @@ def plot(dataset, datasetName, metadata, exp_name, exp_id):
     my_exp.append_tag('plot-added')
     my_exp.log_image('reducedData', fig, image_name='reducedData')
 
-plot(dfh, 'dfh', dfh_metadata, PARAMS['experiment_name'], PARAMS['experiment_id'])
-# plot(dfh_r, 'dfhr', dfh_r_metadata, PARAMS['experiment_name'], 'VEL-371')
+#plot(dfh, 'dfh', dfh_metadata, PARAMS['experiment_name'], PARAMS['experiment_id'])
+plot(dfh_r, 'dfhr', dfh_r_metadata, PARAMS['experiment_name'], 'VEL-371')
 # plot(dfh_phi, 'dfhphi', dfh_phi_metadata, PARAMS['experiment_name'], 'VEL-372')
 # plot(dfp, 'dfp', dfp_metadata, PARAMS['experiment_name'], 'VEL-373')
 # plot(dfp_r, 'dfpr', dfp_r_metadata, PARAMS['experiment_name'], 'VEL-374')
