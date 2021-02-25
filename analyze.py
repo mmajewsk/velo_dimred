@@ -113,9 +113,12 @@ def interactive_plot(dataset, datasetName, metadata, model):
     indexesList = metadata.index.values.tolist()
     xyDF = pd.DataFrame(reducedData, index=indexesList, columns=['x', 'y'])
     resultDF = pd.concat([metadata, xyDF], axis=1)
+    resultDF["datetime"] = resultDF["datetime"].astype(str)
 
+    
+    
 #    fig = px.scatter(resultDF, x="x", y="y", animation_frame="datetime", color="sensor")
-    fig = px.scatter(resultDF, x="x", y="y", color="sensor")
+    fig = px.scatter(resultDF, x="x", y="y", animation_frame="datetime", animation_group="sensor", color="sensor")
 
     fig["layout"].pop("updatemenus") # optional, drop animation buttons
     fig.show()
