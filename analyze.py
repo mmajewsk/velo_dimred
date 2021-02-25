@@ -106,7 +106,7 @@ def make_model_trainer(s, neptune_logger, lr):
 
 
 # +
-def interactive_plot(dataset, datasetName, metadata, model):
+def slider_plot(dataset, datasetName, metadata, model):
     reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
     reducedData = reducedData.detach().numpy()
      
@@ -144,7 +144,7 @@ def run_experiment(dataset, datasetName, par, metadata):
     torch.save(model, os.path.join('models', PARAMS['experiment_name'], datasetName, "trained_model.ckpt"))
     neptune_logger.experiment.log_artifact(os.path.join('models', PARAMS['experiment_name'], datasetName,
                                                         "trained_model.ckpt"))
-    interactive_plot(dataset, datasetName, metadata, model)
+    slider_plot(dataset, datasetName, metadata, model)
 
 
 
