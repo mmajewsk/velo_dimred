@@ -13,6 +13,7 @@
 #     name: python3
 # ---
 
+
 import os
 import torch
 import pytorch_lightning as pl
@@ -127,6 +128,21 @@ def slider_plot(dataset, datasetName, metadata, model):
 
 # -
 
+def clustering_plot(dataset, datasetName, metadata, model):
+    
+    reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
+    reducedData = reducedData.detach().numpy()
+     
+    indexesList = metadata.index.values.tolist()
+    xyDF = pd.DataFrame(reducedData, index=indexesList, columns=['x', 'y'])
+    resultDF = pd.concat([metadata, xyDF], axis=1)
+    resultDF["datetime"] = resultDF["datetime"].astype(str)
+    
+    fig = px.scatter(resultDF, x="x", y="y", color='sensor', opacity=0.5)
+    fig.show(renderer="notebook") 
+    fig.write_html("PCA.html")
+
+
 def run_experiment(dataset, datasetName, par, metadata):
     train_loader, test_loader = make_loader(dataset)
     s = dataset.shape[1]
@@ -145,6 +161,7 @@ def run_experiment(dataset, datasetName, par, metadata):
     neptune_logger.experiment.log_artifact(os.path.join('models', PARAMS['experiment_name'], datasetName,
                                                         "trained_model.ckpt"))
     slider_plot(dataset, datasetName, metadata, model)
+    clustering_plot(dataset, datasetName, metadata, model)
 
 
 
