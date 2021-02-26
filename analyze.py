@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -6,13 +7,44 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.10.2
+#       jupytext_version: 1.5.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
 
+# <h1> VELO detector - dimensional reduction problem using autoencoders and PCA</h1>
+# <h3> Authors: Tymoteusz Ciesielski, Paweł Drabczyk, Aleksander Morgała </h3>
+# <h4> Project realised for the Python in the Enterprise course. </h4>
+# <h4> AGH UST 2020/2021 </h4>
+#
+
+# <h4>Introduction</h4>
+# Our task was to reduce the number of dimensions in the VELO detector. Each dimension of the problem represents one sensor from 4096 present. We have applied two approaches:
+# <ol>
+#     <li> Principal Component Analysis (PCA) </li>
+#     <li> Autoencoders </li>
+# </ol>
+#
+# <a href=https://lhcb-public.web.cern.ch/en/detector/VELO-en.html>Link to more information about VELO.</a>
+#
+# blablablablbalbalabala
+#
+
+# <h4> Data </h4>
+# We were using the data from here:
+#
+# [insert some links etc]
+
+# <h4> Technologies </h4>
+# <ul>
+#     <li> <b>Python</b> (PyTorch)</li>
+#     <li> <b>Neptune AI </b> - to keep track of the training process, register networks architectures and save the parameters</li>
+#     <li> Pandas</li>
+#     <li> sth</li>
+# </ul>
+#     
 
 import os
 import torch
@@ -28,6 +60,8 @@ import pandas as pd
 
 from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
 from calibration_dataset import Tell1Dataset
+
+# Here we set the parameters for our autoencoder neutal network.
 
 #trainig parameters
 PARAMS = {'max_epochs': 1,
@@ -128,21 +162,6 @@ def slider_plot(dataset, datasetName, metadata, model):
 
 # -
 
-def clustering_plot(dataset, datasetName, metadata, model):
-    
-    reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
-    reducedData = reducedData.detach().numpy()
-     
-    indexesList = metadata.index.values.tolist()
-    xyDF = pd.DataFrame(reducedData, index=indexesList, columns=['x', 'y'])
-    resultDF = pd.concat([metadata, xyDF], axis=1)
-    resultDF["datetime"] = resultDF["datetime"].astype(str)
-    
-    fig = px.scatter(resultDF, x="x", y="y", color='sensor', opacity=0.5)
-    fig.show(renderer="notebook") 
-    fig.write_html("PCA.html")
-
-
 def run_experiment(dataset, datasetName, par, metadata):
     train_loader, test_loader = make_loader(dataset)
     s = dataset.shape[1]
@@ -161,7 +180,6 @@ def run_experiment(dataset, datasetName, par, metadata):
     neptune_logger.experiment.log_artifact(os.path.join('models', PARAMS['experiment_name'], datasetName,
                                                         "trained_model.ckpt"))
     slider_plot(dataset, datasetName, metadata, model)
-    clustering_plot(dataset, datasetName, metadata, model)
 
 
 
