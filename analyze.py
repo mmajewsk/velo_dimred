@@ -57,6 +57,8 @@ from datetime import datetime
 datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
 import plotly.express as px
 import pandas as pd
+import neptune
+import zipfile
 
 from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
 from calibration_dataset import Tell1Dataset
@@ -66,10 +68,10 @@ PARAMS = {'max_epochs': 1,
           'learning_rate': 0.02,
           'batch_size': 64,
           'gpus': 1,
-          'experiment_name': 'testing small-net  standarized SGD no-dropout bigger-batches relu shuffle',
-          'tags': ['testing', 'large-net', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu',
-                   'shuffle'],
-          'source_files': ['analyze_Pawel.py', 'networks.py']
+          'experiment_name': 'debugging',
+          'tags': ['debugging'],
+          'source_files': ['analyze_Pawel.py', 'networks.py'],
+          'experiment_id': 'VEL-432'
 }
 
 
@@ -93,8 +95,6 @@ dfp_phi = mds.dfp['phi'].df.iloc[:, 9:]
 
 
 dfh_metadata = mds.dfh.df.iloc[:, :9]
-print('dfh_metadata')
-print(dfh_metadata)
 dfh_r_metadata = mds.dfh['R'].df.iloc[:, :9]
 dfh_phi_metadata = mds.dfh['phi'].df.iloc[:, :9]
 dfp_metadata = mds.dfp.df.iloc[:, :9]
@@ -137,7 +137,6 @@ def make_model_trainer(s, neptune_logger, lr):
 
 
 
-# +
 def slider_plot(dataset, datasetName, metadata, model):
     reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
     reducedData = reducedData.detach().numpy()
@@ -147,17 +146,11 @@ def slider_plot(dataset, datasetName, metadata, model):
     resultDF = pd.concat([metadata, xyDF], axis=1)
     resultDF["datetime"] = resultDF["datetime"].astype(str)
 
-    
-    
-#    fig = px.scatter(resultDF, x="x", y="y", animation_frame="datetime", color="sensor")
     fig = px.scatter(resultDF, x="x", y="y", animation_frame="datetime", animation_group="sensor", color="sensor")
-
     fig["layout"].pop("updatemenus") # optional, drop animation buttons
     fig.show()
+    return fig
 
-
-
-# -
 
 def clustering_plot(dataset, datasetName, metadata, model):
     
@@ -172,11 +165,16 @@ def clustering_plot(dataset, datasetName, metadata, model):
     print(resultDF)
     
     fig = px.scatter(resultDF, x="x", y="y", color='sensor', opacity=0.5)
-    fig.show(renderer="notebook") 
-    fig.write_html("PCA.html")
+    fig.show(renderer="notebook")
+    return fig
+
 
 
 def run_experiment(dataset, datasetName, par, metadata):
+    model_path = os.path.join('models', par['experiment_name'], datasetName)
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
+        
     train_loader, test_loader = make_loader(dataset)
     s = dataset.shape[1]
     neptune_logger = NeptuneLogger(
@@ -191,19 +189,44 @@ def run_experiment(dataset, datasetName, par, metadata):
     tr.fit(model, train_loader, test_loader)
 
     torch.save(model, os.path.join('models', PARAMS['experiment_name'], datasetName, "trained_model.ckpt"))
-    neptune_logger.experiment.log_artifact(os.path.join('models', PARAMS['experiment_name'], datasetName,
-                                                        "trained_model.ckpt"))
-    slider_plot(dataset, datasetName, metadata, model)
-    clustering_plot(dataset, datasetName, metadata, model)
+    neptune_logger.experiment.log_artifact(os.path.join(model_path, "trained_model.ckpt"))
+    
+    fig = slider_plot(dataset, datasetName, metadata, model)
+    fig.write_html(os.path.join(model_path, 'slider_plot.html'))
+    fig.write_image(os.path.join(model_path, 'slider_plot.png'))   
+    neptune_logger.experiment.log_image('slider_plot',os.path.join(model_path, 'slider_plot.png'))    
+    fig = clustering_plot(dataset, datasetName, metadata, model)
+    fig.write_html(os.path.join(model_path, 'clustering_plot.html'))
+    fig.write_image(os.path.join(model_path, 'clustering_plot.png'))    
+    neptune_logger.experiment.log_image('clustering_plot', os.path.join(model_path, 'clustering_plot.png'))        
+    
+    neptune_logger.experiment.log_artifact(os.path.join(model_path, "slider_plot.html"))
+    neptune_logger.experiment.log_artifact(os.path.join(model_path, "clustering_plot.html"))
 
+
+
+def reopen_experiment(dataset, datasetName, par, metadata):
+    exp_id = par['experiment_id']
+    exp_name = par['experiment_name']
+    model_path = os.path.join('models', exp_name, datasetName)
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
+    
+    project = neptune.init('pawel-drabczyk/velodimred')
+    my_exp = project.get_experiments(id=exp_id)[0]
+    my_exp.download_artifact('trained_model.ckpt', model_path)
+    my_exp.download_sources('networks.py')
+    with zipfile.ZipFile("networks.py.zip","r") as zip_ref:
+        zip_ref.extractall()
+    from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
+        
+    model = torch.load(os.path.join(model_path,'trained_model.ckpt'))
+    slider_plot(dataset, datasetName, metadata, model)
+    clustering_plot(dataset, datasetName, metadata, model)    
 
 
 # +
 datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
-
-for d in datasetNames:
-    if not os.path.exists(os.path.join('models', PARAMS['experiment_name'], d)):
-        os.makedirs(os.path.join('models', PARAMS['experiment_name'], d))
 
 run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #run_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
@@ -211,3 +234,6 @@ run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #run_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #run_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #run_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+
+# +
+#reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
