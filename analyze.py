@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.5.2
+#       jupytext_version: 1.10.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -61,8 +61,6 @@ import pandas as pd
 from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
 from calibration_dataset import Tell1Dataset
 
-# Here we set the parameters for our autoencoder neutal network.
-
 #trainig parameters
 PARAMS = {'max_epochs': 1,
           'learning_rate': 0.02,
@@ -111,7 +109,6 @@ dfh_phi = dfh_phi.sub(dfh_phi.mean(1), axis=0).div(dfh_phi.std(1), axis=0)
 dfp = dfp.sub(dfp.mean(1), axis=0).div(dfp.std(1), axis=0)
 dfp_r = dfp_r.sub(dfp_r.mean(1), axis=0).div(dfp_r.std(1), axis=0)
 dfp_phi = dfp_phi.sub(dfp_phi.mean(1), axis=0).div(dfp_phi.std(1), axis=0)
-
 
 # -
 
@@ -162,6 +159,23 @@ def slider_plot(dataset, datasetName, metadata, model):
 
 # -
 
+def clustering_plot(dataset, datasetName, metadata, model):
+    
+    reducedData = model.enc.forward(torch.tensor(dataset.values, dtype=torch.float))
+    reducedData = reducedData.detach().numpy()
+     
+    indexesList = metadata.index.values.tolist()
+    xyDF = pd.DataFrame(reducedData, index=indexesList, columns=['x', 'y'])
+    resultDF = pd.concat([metadata, xyDF], axis=1)
+    resultDF["datetime"] = resultDF["datetime"].astype(str)
+    resultDF["sensor"] = resultDF["sensor"].astype(str)
+    print(resultDF)
+    
+    fig = px.scatter(resultDF, x="x", y="y", color='sensor', opacity=0.5)
+    fig.show(renderer="notebook") 
+    fig.write_html("PCA.html")
+
+
 def run_experiment(dataset, datasetName, par, metadata):
     train_loader, test_loader = make_loader(dataset)
     s = dataset.shape[1]
@@ -180,6 +194,7 @@ def run_experiment(dataset, datasetName, par, metadata):
     neptune_logger.experiment.log_artifact(os.path.join('models', PARAMS['experiment_name'], datasetName,
                                                         "trained_model.ckpt"))
     slider_plot(dataset, datasetName, metadata, model)
+    clustering_plot(dataset, datasetName, metadata, model)
 
 
 
