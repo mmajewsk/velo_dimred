@@ -68,10 +68,10 @@ PARAMS = {'max_epochs': 1,
           'learning_rate': 0.02,
           'batch_size': 64,
           'gpus': 1,
-          'experiment_name': 'debugging',
-          'tags': ['debugging'],
-          'source_files': ['analyze_Pawel.py', 'networks.py'],
-          'experiment_id': 'VEL-432'
+          'experiment_name': 'small-net more-epochs standarized SGD no-dropout bigger-batches relu shuffle',
+          'tags': ['small-net', 'normal-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
+          'source_files': ['small-net', 'more-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
+          'experiment_id': 'VEL-372'
 }
 
 
@@ -182,7 +182,7 @@ def run_experiment(dataset, datasetName, par, metadata):
         project_name="pawel-drabczyk/velodimred",
         experiment_name=par['experiment_name'],
         params=par,
-        tags=par['tags'] + [datasetName],
+        tags=par['tags'] + [datasetName] + ['interactive'],
         upload_source_files=par['source_files']
     )
     model, tr = make_model_trainer(s, neptune_logger, par['learning_rate'])
@@ -221,19 +221,36 @@ def reopen_experiment(dataset, datasetName, par, metadata):
     from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
         
     model = torch.load(os.path.join(model_path,'trained_model.ckpt'))
-    slider_plot(dataset, datasetName, metadata, model)
-    clustering_plot(dataset, datasetName, metadata, model)    
+    
+    fig = slider_plot(dataset, datasetName, metadata, model)
+    fig.write_html(os.path.join(model_path, 'slider_plot.html'))
+    fig.write_image(os.path.join(model_path, 'slider_plot.png'))   
+    my_exp.log_image('slider_plot',os.path.join(model_path, 'slider_plot.png'))    
+    fig = clustering_plot(dataset, datasetName, metadata, model)
+    fig.write_html(os.path.join(model_path, 'clustering_plot.html'))
+    fig.write_image(os.path.join(model_path, 'clustering_plot.png'))    
+    my_exp.log_image('clustering_plot', os.path.join(model_path, 'clustering_plot.png'))        
+    
+    my_exp.log_artifact(os.path.join(model_path, "slider_plot.html"))
+    my_exp.log_artifact(os.path.join(model_path, "clustering_plot.html"))
+    my_exp.append_tag('interactive')
+
 
 
 # +
 datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
 
-run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
+#run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #run_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
 #run_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
 #run_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #run_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #run_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+# -
 
-# +
 #reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
+#reopen_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
+reopen_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
+#reopen_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
+#reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
+#reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
