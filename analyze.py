@@ -14,20 +14,49 @@
 #     name: python3
 # ---
 
-# <h1> VELO detector - dimensional reduction problem using autoencoders and PCA</h1>
-# <h3> Authors: Tymoteusz Ciesielski, Paweł Drabczyk, Aleksander Morgała </h3>
+# <h1> VELO detector - solving dimensional reduction problem using autoencoders and PCA</h1>
+# <h2>Learn how PyTorch and scikit-learn help in preparing callibration data for CERN's analyses</h2>
+# <h3> Authors: Tymoteusz Ciesielski, Paweł Drabczyk, Aleksander Morgała</h3>
 # <h4> AGH UST 2020/2021 Faculty of Physics and Applied Computer Science</h4>
 # <h4> Project realised for the Python in the Enterprise course. </h4>
 #
 
 # <h3>1. Introduction</h3>
-# Our task was to reduce the number of dimensions in the VELO detector. Each dimension of the problem represents one sensor from 4096 present. We have applied two approaches:
+#
+# What do you see when you think about particle collisions in CERN? Most people imagine a lot of colorful track and clusters in the detector like this:
+#
+# <img src='https://physicsworld.com/wp-content/uploads/2018/08/LHCb-collision-635x372.png' alt='Sophia Chen, Charmed baryon puzzles particle physicists by living longer'>
+#
+# In reallity there is a long way from collision to this visualisation. Lets start with a short introduction on the LHCb detector. The LHCb detector is divided into parts: vertex locator, electromagnetic calorimeter, hadronic calorimeter and muon system. Each part provides different kind of information about partcile (or lack of information, what is also an information). In this analysis we focus on VELO (VErtex LOcator), the most precise tracking system in the world. 
+#
+# <img src='http://cds.cern.ch/record/1017398/files/velo-2007-003_01.jpg?version=1' alt='Paula Collins, Velo constaint system installation(site C)' >
+#
+# All kind of information are gathered as an electric signal and whereever there is electric signal there is a...electric noise. You can minimalise the noise, but you can never get rid of it in 100%. So, after you come to terms with it you have to measure the noise in order to distinguish the noise from the real signal from particles. This is done during callibration measurement, when the detector is turned on, but there are no collisions happening. The measured noise looks like this:
+#
+# IMAGE FROM siberian school 1
+#
+# Before we analyse above picture it is good to know that electric noise amplitude have a gaussian distribution. Each gaussian distribution have certain average value. Interpretation of this value at the above picture is the following: each sensor have certain level of average electric voltage which is present all the time. This value is called 'pedestal'. Therefore, it is enough to just subtract pedestals from measured voltage value. 
+#
+# IMAGE FROM siberian school 2
+#
+# After the sutraction of the pedestals the average value of noise for all of the sensors is equal to 0. Now we can measure the standard deviation of the noise distribution for each sensor. However, the distribution is not symetrical so we define different standard deviation for positive and negative values of voltage. 
+#
+# How do we use the characteristics of noise distribution? Physicists pay a lot of attention to avoid false positive (nobody want to withdraw false discovery in shame). Therefore, the five-sigma or even six-sigma significance rule is used. It means that only voltages distant from pedestal value for five or six standard deviations are considered as not noise effects (real particles). In this case five-sigma significance means that the chance that noise can be indentified as a real particle is like one-in-a-milion (one-in-a half-bilion for six sigma).
+#
+# The summary of the characteristics of the electric noise (with working names):
+# <ol>
+#     <li> dfp - 'pedestals', the average values noise distribution </li>
+#     <li> dfh - high hit threshold, the standard deviation of noise distribution for voltages above pedestal </li>
+#     <li> dfl - low hit threshold, the standard deviation of noise distribution for voltages under pedestal </li>
+# </ol>
+#
+# Ok, so we have the electric noise characterised by callibration data. Now physicists can run many different analyses looking for any kind of correlation between noise and final signal measured. For example they can use neural networks, but... the number of dimensions in callibration data is far too big. We have 4096 sensors present in VELO detector, and callibration data were taken several times. If we multiply those numbers we receive something even more inadequate to be input for neural network.
+#
+# Therefore we performed dimension reduction for callibration data. The output of the reduction can be used by other analyses. We have applied two approaches:
 # <ol>
 #     <li> Principal Component Analysis (PCA) </li>
 #     <li> Autoencoders </li>
 # </ol>
-#
-# <a href=https://lhcb-public.web.cern.ch/en/detector/VELO-en.html>Link to more information about VELO.</a>
 #
 # In the code below, you can find the application of the autoencoders.
 #
@@ -77,7 +106,7 @@ PARAMS = {'max_epochs': 1,
           'gpus': 1,
           'experiment_name': 'small-net more-epochs standarized SGD no-dropout bigger-batches relu shuffle',
           'tags': ['small-net', 'normal-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
-          'source_files': ['small-net', 'more-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
+          'source_files': ['analyze.pynb', 'networks.py'],
           'experiment_id': 'VEL-398'
 }
 
@@ -98,6 +127,7 @@ data_list = MyDS.get_filepaths_from_dir(datapath)
 mds = MyDS(data_list, read=True)
 
 dfh = mds.dfh.df.iloc[:, 9:]
+print(dfh)
 dfh_r = mds.dfh['R'].df.iloc[:, 9:]
 dfh_phi = mds.dfh['phi'].df.iloc[:, 9:]
 dfp = mds.dfp.df.iloc[:, 9:]
