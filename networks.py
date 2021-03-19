@@ -44,10 +44,10 @@ class VeloEncoder(nn.Module):
     def forward(self, x):
         x = self.e1(x)
         #x = self.drop1(x)
-        x = nn.LeakyReLU(0.01)(x)
+        x = F.relu(x)
         x = self.e2(x)
         #x = self.drop2(x)
-        x = nn.LeakyReLU(0.01)(x)
+        x = F.relu(x)
         x = self.e3(x)
         #x = self.drop3(x)
         return x
@@ -66,10 +66,10 @@ class VeloDecoder(nn.Module):
     def forward(self, x):
         x = self.e3(x)
         #x = self.drop3(x)
-        x = nn.LeakyReLU(0.01)(x)
+        x = F.relu(x)
         x = self.e2(x)
         #x = self.drop2(x)
-        x = nn.LeakyReLU(0.01)(x)
+        x = F.relu(x)
         x = self.e1(x)
         #x = self.drop1(x)
         return x

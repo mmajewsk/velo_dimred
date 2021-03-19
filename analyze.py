@@ -25,20 +25,21 @@
 #
 # What do you see when you think about particle collisions in CERN? Most people imagine a lot of colorful track and clusters in the detector like this:
 #
-# <img src='https://physicsworld.com/wp-content/uploads/2018/08/LHCb-collision-635x372.png' alt='Sophia Chen, Charmed baryon puzzles particle physicists by living longer'>
+# <img src='https://physicsworld.com/wp-content/uploads/2018/08/LHCb-collision-635x372.png' alt='Sophia Chen, Charmed baryon puzzles particle physicists by living longer' width="1000">
 #
 # In reallity there is a long way from collision to this visualisation. Lets start with a short introduction on the LHCb detector. The LHCb detector is divided into parts: vertex locator, electromagnetic calorimeter, hadronic calorimeter and muon system. Each part provides different kind of information about partcile (or lack of information, what is also an information). In this analysis we focus on VELO (VErtex LOcator), the most precise tracking system in the world. 
 #
-# <img src='http://cds.cern.ch/record/1017398/files/velo-2007-003_01.jpg?version=1' alt='Paula Collins, Velo constaint system installation(site C)' >
+# <img src='http://cds.cern.ch/record/1017398/files/velo-2007-003_01.jpg?version=1' alt='Paula Collins, Velo constaint system installation(site C)' width="1000">
 #
 # All kind of information are gathered as an electric signal and whereever there is electric signal there is a...electric noise. You can minimalise the noise, but you can never get rid of it in 100%. So, after you come to terms with it you have to measure the noise in order to distinguish the noise from the real signal from particles. This is done during callibration measurement, when the detector is turned on, but there are no collisions happening. The measured noise looks like this:
 #
-# IMAGE FROM siberian school 1
-#
+
+# ![image.png](attachment:image.png)
+
 # Before we analyse above picture it is good to know that electric noise amplitude have a gaussian distribution. Each gaussian distribution have certain average value. Interpretation of this value at the above picture is the following: each sensor have certain level of average electric voltage which is present all the time. This value is called 'pedestal'. Therefore, it is enough to just subtract pedestals from measured voltage value. 
-#
-# IMAGE FROM siberian school 2
-#
+
+# ![image.png](attachment:image.png)
+
 # After the sutraction of the pedestals the average value of noise for all of the sensors is equal to 0. Now we can measure the standard deviation of the noise distribution for each sensor. However, the distribution is not symetrical so we define different standard deviation for positive and negative values of voltage. 
 #
 # How do we use the characteristics of noise distribution? Physicists pay a lot of attention to avoid false positive (nobody want to withdraw false discovery in shame). Therefore, the five-sigma or even six-sigma significance rule is used. It means that only voltages distant from pedestal value for five or six standard deviations are considered as not noise effects (real particles). In this case five-sigma significance means that the chance that noise can be indentified as a real particle is like one-in-a-milion (one-in-a half-bilion for six sigma).
@@ -75,6 +76,13 @@
 #     <li> <b>Calina</b> library</li>
 # </ul>
 #     
+# Requirement.txt can be found in the repository. In order install all necessary packages you should run:
+#
+# pip install -r requirements.txt
+#
+# Adding Calina library to pythonpath is also necessary. If you are using using anaconda you can just type:
+#
+# conda develop Calina_path
 
 # <h3> 4. Code example </h3>
 
@@ -107,7 +115,7 @@ PARAMS = {'max_epochs': 1,
           'experiment_name': 'small-net more-epochs standarized SGD no-dropout bigger-batches relu shuffle',
           'tags': ['small-net', 'normal-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
           'source_files': ['analyze.pynb', 'networks.py'],
-          'experiment_id': 'VEL-398'
+          'experiment_id': 'VEL-371'
 }
 
 
@@ -118,7 +126,7 @@ class MyDS(Tell1Dataset):
     filename_regex_format = r'\d{4}-\d{2}-\d{2}.csv'
 
 
-# Loading the data from all soutces and channels. We also scale the input data.
+# Loading the data from all sources and channels. We also scale the input data.
 
 # +
 #loading the data
@@ -301,9 +309,13 @@ datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
 
 # The cell below opens existing experiment, adding the slider plots and cluster plots.
 
-#reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
+reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #reopen_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
 #reopen_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
 #reopen_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
-reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+#reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+
+params = {}
+reopen()
+
