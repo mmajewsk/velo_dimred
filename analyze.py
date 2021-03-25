@@ -202,6 +202,8 @@ def slider_plot(dataset, datasetName, metadata, model):
 
     fig = px.scatter(resultDF, x="x", y="y", animation_frame="datetime", animation_group="sensor", color="sensor")
     fig["layout"].pop("updatemenus") # optional, drop animation buttons
+    fig.update_xaxes(range=[1.15*resultDF['x'].min(), 1.15*resultDF['y'].max()])
+    fig.update_yaxes(range=[1.15*resultDF['x'].min(), 1.15*resultDF['y'].max()])
     fig.show()
     return fig
 
@@ -316,6 +318,5 @@ reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
 
-params = {}
-reopen()
+
 
