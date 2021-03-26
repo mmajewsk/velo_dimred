@@ -316,6 +316,5 @@ reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
 
-params = {}
-reopen()
+# The results of dimension reduction for upper hit thre
 
