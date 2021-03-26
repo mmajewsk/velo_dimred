@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.7.1
+#       jupytext_version: 1.10.2
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -32,7 +32,7 @@ class MyDS(Tell1Dataset):
     filename_format = '%Y-%m-%d'
     filename_regex_format = r'\d{4}-\d{2}-\d{2}.csv'
 
-datapath = "../../data/calibrations/"
+datapath = "data/calibrations/"
 data_list = MyDS.get_filepaths_from_dir(datapath)
 mds = MyDS(data_list, read=True)
 
@@ -133,9 +133,8 @@ def do_a_pca_and_draw_a_plot(data):
 
 import plotly.express as px
 
-d = data['hit threshold']['phi']
+d = data['pedestal']['r_phi']
 
-# +
 single_data = {k: v.drop('sensor',axis=1) for k, v in d.groupby('sensor')}
 alpha = 0.4
 thisrun = []
@@ -147,9 +146,6 @@ for sensor_data_key in single_data:
     #scatter = plt.scatter(dataset_after_pca.iloc[:,0], dataset_after_pca.iloc[:,1], edgecolor='none', alpha=alpha,label=sensor_data_key)
     #plt.legend(title="Module nr.")
     thisrun.append(dataset_after_pca)
-
-
-# -
 
 alldat = pd.concat(thisrun)
 
