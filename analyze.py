@@ -91,6 +91,7 @@ import torch
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 from pytorch_lightning.loggers.neptune import NeptuneLogger
 from pytorch_lightning.callbacks import LearningRateMonitor
 from datetime import datetime
@@ -108,14 +109,14 @@ from calibration_dataset import Tell1Dataset
 # Below are all the necessary parameters for the training process, creating plots and saving them in Neptune.
 
 #trainig parameters
-PARAMS = {'max_epochs': 1,
+PARAMS = {'max_epochs': 50,
           'learning_rate': 0.02,
           'batch_size': 64,
           'gpus': 1,
-          'experiment_name': 'small-net more-epochs standarized SGD no-dropout bigger-batches relu shuffle',
-          'tags': ['small-net', 'normal-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
+          'experiment_name': 'small-net more-epochs standarized2 SGD no-dropout bigger-batches relu shuffle',
+          'tags': ['small-net', 'normal-epochs', 'standarized2', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
           'source_files': ['analyze.pynb', 'networks.py'],
-          'experiment_id': 'VEL-371'
+          'experiment_id': 'VEL-370'
 }
 
 
@@ -150,15 +151,40 @@ dfp_metadata = mds.dfp.df.iloc[:, :9]
 dfp_r_metadata = mds.dfp['R'].df.iloc[:, :9]
 dfp_phi_metadata = mds.dfp['phi'].df.iloc[:, :9]
 
+scaler = preprocessing.StandardScaler()
+dfh_scaled = scaler.fit_transform(dfh)
+dfh_r_scaled = scaler.fit_transform(dfh_r)
+dfh_phi_scaled = scaler.fit_transform(dfh_phi)
+dfp_scaled = scaler.fit_transform(dfp)
+dfp_r_scaled = scaler.fit_transform(dfp_r)
+dfp_phi_scaled = scaler.fit_transform(dfp_phi)
+
+dfh = pd.DataFrame(dfh_scaled, index=dfh.index, columns=dfh.columns)
+dfh_r = pd.DataFrame(dfh_r_scaled, index=dfh_r.index, columns=dfh_r.columns)
+dfh_phi = pd.DataFrame(dfh_phi_scaled, index=dfh_phi.index, columns=dfh_phi.columns)
+dfp = pd.DataFrame(dfp_scaled, index=dfp.index, columns=dfp.columns)
+dfp_r = pd.DataFrame(dfp_r_scaled, index=dfp_r.index, columns=dfp_r.columns)
+dfp_phi = pd.DataFrame(dfp_phi_scaled, index=dfp_phi.index, columns=dfp_phi.columns)
+
 
 #scaling input data
-dfh = dfh.sub(dfh.mean(1), axis=0).div(dfh.std(1), axis=0)
-dfh_r = dfh_r.sub(dfh_r.mean(1), axis=0).div(dfh_r.std(1), axis=0)
-dfh_phi = dfh_phi.sub(dfh_phi.mean(1), axis=0).div(dfh_phi.std(1), axis=0)
-dfp = dfp.sub(dfp.mean(1), axis=0).div(dfp.std(1), axis=0)
-dfp_r = dfp_r.sub(dfp_r.mean(1), axis=0).div(dfp_r.std(1), axis=0)
-dfp_phi = dfp_phi.sub(dfp_phi.mean(1), axis=0).div(dfp_phi.std(1), axis=0)
+# dfh = dfh.sub(dfh.mean(1), axis=0).div(dfh.std(1), axis=0)
+# dfh_r = dfh_r.sub(dfh_r.mean(1), axis=0).div(dfh_r.std(1), axis=0)
+# dfh_phi = dfh_phi.sub(dfh_phi.mean(1), axis=0).div(dfh_phi.std(1), axis=0)
+# dfp = dfp.sub(dfp.mean(1), axis=0).div(dfp.std(1), axis=0)
+# dfp_r = dfp_r.sub(dfp_r.mean(1), axis=0).div(dfp_r.std(1), axis=0)
+# dfp_phi = dfp_phi.sub(dfp_phi.mean(1), axis=0).div(dfp_phi.std(1), axis=0)
 
+
+# print('type(dfh_scaled)')
+# print(type(dfh_scaled))
+# print('type(dfh)')
+# print(type(dfh))
+
+# print('mean standard scaler')
+# print(dfh_scaled.mean(axis=0))
+# print('mean own method')
+# print(dfh.mean(axis=0))
 # -
 
 # Create loaders for the training.
@@ -299,22 +325,24 @@ def reopen_experiment(dataset, datasetName, par, metadata):
 # +
 datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
 
-#run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
-#run_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
-#run_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
-#run_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
-#run_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
-#run_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+run_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
+run_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
+run_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
+run_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
+run_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
+run_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
 # -
 
 # The cell below opens existing experiment, adding the slider plots and cluster plots.
 
-reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
+# +
+#reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 #reopen_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
 #reopen_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
 #reopen_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+# -
 
 # The results of dimension reduction for upper hit thre
 
