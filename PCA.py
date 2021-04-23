@@ -13,6 +13,16 @@
 #     name: python3
 # ---
 
+# ### Installation
+#     
+# requirement.txt can be found in the repository. In order install all necessary packages you should run:
+#
+# pip install -r requirements.txt
+#
+# Adding Calina library to pythonpath is also necessary. If you are using using anaconda you can just type:
+#
+# conda develop Calina_path
+
 # ### Importing required modules
 
 import pandas as pd
@@ -35,8 +45,6 @@ class MyDS(Tell1Dataset):
 datapath = "data/calibrations/"
 data_list = MyDS.get_filepaths_from_dir(datapath)
 mds = MyDS(data_list, read=True)
-
-
 
 # -
 
@@ -128,7 +136,6 @@ def do_a_pca_and_draw_a_plot(data):
     for mod_key in data:
         draw_a_plot(data[mod_key],mod_key)
         plt.tight_layout()
-
 
 
 import plotly.express as px

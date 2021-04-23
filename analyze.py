@@ -16,7 +16,7 @@
 
 # <h1> Autoencoders</h1>
 
-# ### Installation
+# #### Installation
 #     
 # requirement.txt can be found in the repository. In order install all necessary packages you should run:
 #
