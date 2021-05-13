@@ -14303,7 +14303,7 @@ a.anchor-link {
     <li> dfp - 'pedestals', the average values noise distribution </li>
     <li> dfh - high hit threshold, the standard deviation of noise distribution for voltages above a pedestal </li>
     <li> dfl - low hit threshold, the standard deviation of noise distribution for voltages under pedestal </li>
-</ol><p>Ok, so we have the electric noise characterized by calibration data. Now physicists can run many different analyses looking for any kind of correlation between noise and the final signal measured. For example, they can use neural networks, but... the number of dimensions in calibration data is far too big. We have 4096 sensors present in the VELO detector, and calibration data were taken several times. If we multiply those numbers we receive something even more inadequate to be input for the neural network.</p>
+</ol><p>Ok, so we have the electric noise characterized by calibration data. Now physicists have the parameters required to evaluate the performance of the detector, but... the number of dimensions in calibration data is far too big to plot the results in a reasonable way. We have 4096 sensors present in the VELO detector, and calibration data were taken several times. If we multiply those numbers we receive something even more inadequate to be analysed in this form.</p>
 
 </div>
 </div>
@@ -14315,7 +14315,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Therefore we performed dimension reduction for calibration data. The output of the reduction can be used by other analyses. We have applied two approaches:</p>
+<p>Therefore we performed dimension reduction for calibration data. The two-dimentional output of the reduction can be easily used to monitore stability of the detector's work. We have applied two approaches:</p>
 <ol>
     <li> Autoencoders (https://github.com/Pawel-Drabczyk/velo_dimred2/blob/master/analyze.ipynb) </li>
     <li> Principal Component Analysis (PCA) (https://github.com/Pawel-Drabczyk/velo_dimred2/blob/master/PCA.ipynb) </li>
