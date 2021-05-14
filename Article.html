@@ -14268,11 +14268,11 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3>1. Introduction</h3><p>What do you see when you think about particle collisions in CERN? Most people imagine a lot of colorful track and clusters in the detector like this:</p>
+<h3>1. Introduction</h3><p>What do you see when you think about particle collisions in CERN? Most people imagine a lot of colorful tracks and clusters in the detector like this:</p>
 <p><img src='https://physicsworld.com/wp-content/uploads/2018/08/LHCb-collision-635x372.png' alt='Sophia Chen, Charmed baryon puzzles particle physicists by living longer' width="600"></p>
-<p>In reality, there is a long way from collision to this visualization. Let's start with a short introduction to the LHCb detector. The LHCb detector is divided into parts: vertex locator, electromagnetic calorimeter, hadronic calorimeter, and muon system. Each part provides a different kind of information about the particle (or lack of information, which is also information). In this analysis, we focus on VELO (VErtex LOcator), the most precise tracking system in the world.</p>
+<p>In reality, there is a long way from the collision to this visualization. Let's start with a short introduction to the LHCb detector. The LHCb detector is divided into several sub-systems: vertex locator, Cherenkov detectors, main tracker, electromagnetic and hadronic calorimeters and muon stations. Each part provides a different kind of information about the particle (or lack of information, which is also information). In this analysis, we focus on VELO (VErtex LOcator), the most precise tracking system currently operating at LHC accelerator.</p>
 <p><img src="article/velo.jpg" alt="" width="600"></p>
-<p>All kinds of information are gathered as an electric signal and wherever there is an electric signal there is a...electric noise. You can minimalize the noise, but you can never get rid of it in 100%. So, after you come to terms with it you have to measure the noise in order to distinguish the noise from the real signal from particles. This is done during calibration measurement when the detector is turned on, but no collisions are happening. The measured noise looks like this:</p>
+<p>All kinds of information are gathered as an electric signal and wherever there is an electric signal there is a...electric noise. You can minimalize the noise, but you can never get rid of it in 100%. So, after you come to terms with it you have to measure the noise in order to distinguish the noise from the real signal from particles. This is done during calibration measurement when the detector is turned on, but no collisions are happening. The idle detector response looks like this:</p>
 
 </div>
 </div>
@@ -14284,7 +14284,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Before we analyze the above picture it is good to know that electric noise amplitude has a Gaussian distribution. Each Gaussian distribution has a certain average value. Interpretation of this value in the above picture is the following: each sensor has a certain level of average electric voltage which is present all the time. This value is called a 'pedestal'. Therefore, it is enough to just subtract pedestals from the measured voltage value.</p>
+<p>Before we analyze the above picture it is good to know that electric noise amplitude has a Gaussian distribution. Each Gaussian distribution has a certain average value. Interpretation of this value in the above picture is the following: each sensor has a certain level of average electric voltage which is present all the time. This value is called a 'pedestal'. Therefore, it is enough to just subtract pedestals from the measured total signal amplitude in each channel.</p>
 
 </div>
 </div>
@@ -14296,14 +14296,14 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>After the subtraction of the pedestals, the average value of noise for all of the sensors is equal to 0. Now we can measure the standard deviation of the noise distribution for each sensor. However, the distribution is not symmetrical so we define different standard deviation for positive and negative values of voltage.</p>
-<p>How do we use the characteristics of noise distribution? Physicists pay a lot of attention to avoid false positives (nobody wants to withdraw false discovery in shame). Therefore, the five-sigma or even six-sigma significance rule is used. It means that only voltages distant from pedestal value for five or six standard deviations are considered as not noise effects (real particles). In this case, five-sigma significance means that the chance that noise can be identified as a real particle is like one-in-a-million (one-in-a half-billion for six sigma).</p>
+<p>After the subtraction of pedestals, the average value of noise for all of the sensors is equal to 0. Now we can measure the standard deviation of the noise distribution for each channel.</p>
+<p>How do we use the characteristics of noise distribution? Physicists pay a lot of attention to avoid false positives (nobody wants to withdraw false discovery in shame). Therefore, the five-sigma significance rule is used. It means that only voltages distant from pedestal value for five standard deviations are considered as not noise effects (real particles). In this case, five-sigma significance means that the chance that noise can be identified as a real particle is like one-in-a-million.</p>
 <p>A summary of the characteristics of the electric noise (with working names):</p>
 <ol>
-    <li> dfp - 'pedestals', the average values noise distribution </li>
-    <li> dfh - high hit threshold, the standard deviation of noise distribution for voltages above a pedestal </li>
-    <li> dfl - low hit threshold, the standard deviation of noise distribution for voltages under pedestal </li>
-</ol><p>Ok, so we have the electric noise characterized by calibration data. Now physicists have the parameters required to evaluate the performance of the detector, but... the number of dimensions in calibration data is far too big to plot the results in a reasonable way. We have 4096 sensors present in the VELO detector, and calibration data were taken several times. If we multiply those numbers we receive something even more inadequate to be analysed in this form.</p>
+    <li> dfp - 'pedestals', the average value observed in each channel for idle detector </li>
+    <li> dfh - high hit threshold, five standard deviations of signal observed in the idle detector (after subtractring pedestals). If the amplitude of signal is greater than high hit threshold, it means that there have been a hit in this channel.</li>
+    <li> dfl - low hit threshold, it is defined as 40% of high hit threshold. This value is very important for calculating exact hit point. If the amplitude of signal is greater that this parameter, the channel is selected as a neighbour to a channel with a hit.</li>
+</ol><p>Ok, so we have the electric noise characterized by calibration data. Now physicists have the parameters required to evaluate the performance of the detector, but... the number of dimensions in calibration data is far too big to plot the results reasonably. We have 42 modules present in the VELO detector, every module has both radius and andle sensors with 2048 silicon microstrips (channels) each. Moreover, the calibration data were taken many times. If we multiply those numbers we receive something even more inadequate to be analysed in this form.</p>
 
 </div>
 </div>
@@ -14315,7 +14315,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Therefore we performed dimension reduction for calibration data. The two-dimentional output of the reduction can be easily used to monitore stability of the detector's work. We have applied two approaches:</p>
+<p>Therefore we performed dimension reduction for the calibration data. The two-dimensional output of the reduction can be easily used to monitor the stability of the detector's work. We have applied two approaches:</p>
 <ol>
     <li> Autoencoders (https://github.com/Pawel-Drabczyk/velo_dimred2/blob/master/analyze.ipynb) </li>
     <li> Principal Component Analysis (PCA) (https://github.com/Pawel-Drabczyk/velo_dimred2/blob/master/PCA.ipynb) </li>
@@ -14330,7 +14330,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3>2. Autoencoders</h3><p>The first method of data reduction is using autoencoders. They consist of two artificial neural networks: encoder and decoder. The encoder is used to compress the input data in an unsupervised way. The role of the decoder is to decode the encoded data and retrieve the initial input data. Of course, the reconstructed data are not identical to input data, but the difference between them is used to calculate the loss. The epochs of training minimalize the loss and maximize the similarity of the output to the input. The above schema is visualized in the figure below:</p>
+<h3>2. Autoencoders</h3><p>The first method of data reduction is using autoencoders. They consist of two artificial neural networks: encoder and decoder. The encoder is used to compress the input data in an unsupervised way. The role of the decoder is to decode the encoded data and retrieve the initial input data. Of course, the reconstructed data are not identical to input data, but the difference between them is used to calculate the loss. The training procedure over many epochs minimalize the loss and maximize the similarity of the output to the input.  An example autoencoder architecture is presented in the figure below:</p>
 
 </div>
 </div>
@@ -14343,8 +14343,8 @@ a.anchor-link {
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>We have experimented with many different versions of the neural networks, the final architecture can be found in file 'networks.py'. During the experiments, we have optimized the size of the network and training batches, the number of epochs, the optimizer, the activation function, and the preprocessing of input data.</p>
-<p>After the training, only the encoder is used to get final, compressed data. All the 4096 small sensors are grouped in 106 sensor groups, For each sensor group we have 2048 calibration channels, so we can say that we have 2048 dimensions for each date. These 2048 dimensions are reduced to just 2. Finally, we trained 6 different autoencoders to reduce the dimension of pedestals, high hit threshold, and low hit threshold for both radius and angle sensors. The results are shown in the figures below.</p>
-<p>The output of encoder for high hit threshold in radius sensors:</p>
+<p>After the training, only the encoder is used to get final, compressed data. As it was said before, each r-type or phi-type module has 2048 channels, these 2048 dimensions are reduced to just 2. Finally, we trained 6 different autoencoders to reduce the dimension of pedestals, high hit threshold, and low hit threshold for both r-type and phi-type sensors. The results are shown in the figures below.</p>
+<p>The output of encoder for high hit threshold in r-type sensors:</p>
 
 </div>
 </div>
@@ -14402,7 +14402,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>As you can see the output of the encoder for high hit threshold in radius sensors is two-dimensional. Each color represents the calibration data for the certain sensor and the number of the same color points is equal to the number of calibrations done for that sensor. The plot is interactive, after clicking on the sensor number on the right you can show or hide data corresponding to this sensor. You can also use zoom at the plot. The physical interpretation of all the plots is present in the section 4 (Results interpretation and summary).</p>
+<p>As you can see the output of the encoder for high hit threshold in r-type sensors is two-dimensional. Each color represents the calibration data for the certain sensor and the number of the same color points is equal to the number of calibrations done for that sensor. The plot is interactive, after clicking on the sensor number on the right you can show or hide data corresponding to this sensor. You can also use zoom at the plot. The physical interpretation of all the plots is present in the section 4 (Results interpretation and summary).</p>
 
 </div>
 </div>
@@ -14459,7 +14459,7 @@ a.anchor-link {
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h3>3. Principal Component Analysis (PCA)</h3><p>A detailed explanation of the PCA can be material for another article, but we do not want to focus on technical details here. Therefore, we show just the main working rules of the PCA.</p>
-<p>The first step is to standardize data. After this operation, each variable has the mean equal to zero and standard deviation equal to 1. The same ranges for all the variables disallow variables with larger ranges to dominate those with smaller ranges.</p>
+<p>The first step is to standardize data. After this operation, each variable has the mean equal to zero and standard deviation equal to 1. The same ranges for all the variables prevent variables with larger ranges to dominate those with smaller ranges.</p>
 <p><img src="article/standarisation.png" alt="" width="200"></p>
 <p>The next step is to compute the covariance matrix. The dimension of the coviariance matrix is equal to the number of variables. The example of the covariance matrix for 3 variables is presented below:</p>
 <p><img src="article/cov.png" alt="" width="400"></p>
@@ -14579,7 +14579,7 @@ a.anchor-link {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h3>4. Results interpretation and summary</h3><p>Before we say which method gives better results we have to first interpret the results. Let's start with results for autoencoders. For pedestals strong clusterization is expected because each group of sensors is shifted by a different value, you can see it on the plot in the section 1 (Introduction). For the upper hit threshold, some sort of clusterization is also expected, but some differences for certain dates or groups of the sensor may also happen (they may represent some changes in the work of the sensor that day). Therefore, the algorithm of dimension reduction works well with autoencoders.</p>
 <p>For the PCA method, the results are not so good as for the first method. For pedestals, the clusterization is not so visible, and for hit threshold also.</p>
-<p>Summarising both results we have to say that autoencoders worked better. The most possible reason is due to their ability to search for nonlinear correlations between the variables. The Principal Component Analysis is able to search just for the linear connections. The cost of training a nonlinear algorithm is the amount of data needed for training. You never know if the amount is enough unless you try and find out. In this case, it was enough.</p>
+<p>Summarising both results we have to say that autoencoders worked better. The most possible reason is due to their ability to search for nonlinear correlations between the variables. The Principal Component Analysis is able to search just for the linear connections. The cost of training a nonlinear algorithm is proportional to the amount of data needed for training. You never know if the amount is enough unless you try and find out. In this case, it was enough.</p>
 <p>We know about 1 analysis that is going to use our reduced data, we hope that our work will be useful for them and possibly other research groups. We wish you all good luck in further work!</p>
 
 </div>
