@@ -2,8 +2,17 @@
 
 
 # Dependencies
+conda install -c conda-forge neptune-client
+conda install pytorch==1.6.0 torchvision==0.7.0 cudatoolkit=10.2 -c pytorch
+conda install pytorch-lightning -c conda-forge
+conda install scikit-learn
+conda install -c plotly plotly
+conda install -c plotly plotly-orca
 
-Run .envrc with `source .envrc` to add calina path from this repository:
+conda develop /home/pawel/PycharmProjects/calina
+
+Run .envrc with `source .envrc` to add calina 
+path from this repository:
 https://gitlab.cern.ch/mmajewsk/calina
 
 
