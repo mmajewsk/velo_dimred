@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.10.2
+#       jupytext_version: 1.11.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -36,13 +36,13 @@ import matplotlib as mpl
 
 # +
 
-from calibration_dataset import Tell1Dataset
+from calina_dataset.calibration_dataset import Tell1Dataset
 
 class MyDS(Tell1Dataset):
     filename_format = '%Y-%m-%d'
     filename_regex_format = r'\d{4}-\d{2}-\d{2}.csv'
 
-datapath = "data/calibrations/"
+datapath = "../../data/calibrations/"
 data_list = MyDS.get_filepaths_from_dir(datapath)
 mds = MyDS(data_list, read=True)
 

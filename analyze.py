@@ -7,9 +7,9 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.10.2
+#       jupytext_version: 1.11.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -40,13 +40,13 @@ from datetime import datetime
 datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
 import plotly.express as px
 import pandas as pd
-import neptune
+import neptune.new as neptune
 import zipfile
 
 # #### networks.py contains our custom architectures for autoencoders. They are built upon the pl.LightningModule
 
 from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
-from calibration_dataset import Tell1Dataset
+from calina_dataset.calibration_dataset import Tell1Dataset
 
 # #### Below are all the necessary parameters for the training process, creating plots and saving them in Neptune.
 
@@ -72,7 +72,7 @@ class MyDS(Tell1Dataset):
 # #### Loading the data from all sources and channels. We also standardize the input data.
 
 # +
-datapath = os.path.join("data", "calibrations")
+datapath = os.path.join("../../data", "calibrations")
 data_list = MyDS.get_filepaths_from_dir(datapath)
 mds = MyDS(data_list, read=True)
 
@@ -220,11 +220,9 @@ def reopen_experiment(dataset, datasetName, par, metadata):
     if not os.path.exists(model_path):
         os.makedirs(model_path)
     
-    project = neptune.init('pawel-drabczyk/velodimred')
-    my_exp = project.get_experiments(id=exp_id)[0]
-    my_exp.download_artifact('trained_model.ckpt', model_path)
-    my_exp.download_sources('networks.py')
-    with zipfile.ZipFile("networks.py.zip","r") as zip_ref:
+    run = neptune.init('pawel-drabczyk/velodimred', run=PARAMS['experiment_id'])
+    run['artifacts/trained_model.ckpt'].download()
+    with zipfile.ZipFile("files.zip","r") as zip_ref:
         zip_ref.extractall()
     from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
         
@@ -259,11 +257,15 @@ datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
 
 # #### The cell below opens existing experiment, adding the slider plots and cluster plots.
 
+# !source .envrc
+
 #reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 reopen_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
 #reopen_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
 #reopen_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+
+# !ls
 
 
