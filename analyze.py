@@ -225,9 +225,11 @@ def reopen_experiment(dataset, datasetName, par, metadata):
     with zipfile.ZipFile("files.zip","r") as zip_ref:
         zip_ref.extractall('legacy_network')
         
-    # uncomment the following line when the dependancy injection problem is solved
-    # from legacy_network.networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
-    from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
+    import calina_dataset.calibration_dataset as calibration_dataset
+    import sys
+    sys.modules['calibration_dataset'] = calibration_dataset  
+
+    from legacy_network.networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
 
     model = torch.load(os.path.join(model_path,'trained_model.ckpt'), map_location=torch.device('cpu'))
     
@@ -262,3 +264,5 @@ reopen_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
 #reopen_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
+
+
