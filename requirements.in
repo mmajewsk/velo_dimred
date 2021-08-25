@@ -1,0 +1,11 @@
+git+https://gitlab.cern.ch/mmajewsk/calina
+torch
+jupyter
+plotly
+sklearn
+pandas
+matplotlib
+torch==1.6.0
+pytorch-lightning==1.0.8
+kaleido==0.2.1
+neptune-client

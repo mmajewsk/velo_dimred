@@ -220,26 +220,25 @@ def reopen_experiment(dataset, datasetName, par, metadata):
     if not os.path.exists(model_path):
         os.makedirs(model_path)
     
-    run = neptune.init('pawel-drabczyk/velodimred', run=PARAMS['experiment_id'])
+    run = neptune.init('pawel-drabczyk/velodimred', run=PARAMS['experiment_id'], mode="read-only", capture_stderr=False, capture_stdout=False)
     run['artifacts/trained_model.ckpt'].download()
     with zipfile.ZipFile("files.zip","r") as zip_ref:
-        zip_ref.extractall()
-    from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
+        zip_ref.extractall('legacy_network')
         
-    model = torch.load(os.path.join(model_path,'trained_model.ckpt'))
+    # uncomment the following line when the dependancy injection problem is solved
+    # from legacy_network.networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
+    from networks import VeloDecoder, VeloEncoder, VeloAutoencoderLt
+
+    model = torch.load(os.path.join(model_path,'trained_model.ckpt'), map_location=torch.device('cpu'))
     
     fig = slider_plot(dataset, datasetName, metadata, model)
     fig.write_html(os.path.join(model_path, 'slider_plot.html'))
     fig.write_image(os.path.join(model_path, 'slider_plot.png'))   
-    my_exp.log_image('slider_plot',os.path.join(model_path, 'slider_plot.png'))    
+  
     fig = clustering_plot(dataset, datasetName, metadata, model)
     fig.write_html(os.path.join(model_path, 'clustering_plot.html'))
     fig.write_image(os.path.join(model_path, 'clustering_plot.png'))    
-    my_exp.log_image('clustering_plot', os.path.join(model_path, 'clustering_plot.png'))        
-    
-    my_exp.log_artifact(os.path.join(model_path, "slider_plot.html"))
-    my_exp.log_artifact(os.path.join(model_path, "clustering_plot.html"))
-    my_exp.append_tag('interactive')
+
 
 
 # #### The cell below runs te training process for all the datasets, for the current experiment, for the current network configuration.
@@ -257,15 +256,9 @@ datasetNames = ['dfh', 'dfhr', 'dfhphi', 'dfp', 'dfpr', 'dfpphi']
 
 # #### The cell below opens existing experiment, adding the slider plots and cluster plots.
 
-# !source .envrc
-
 #reopen_experiment(dfh, 'dfh', PARAMS, dfh_metadata)
 reopen_experiment(dfh_r, 'dfhr', PARAMS, dfh_r_metadata)
 #reopen_experiment(dfh_phi, 'dfhphi', PARAMS, dfh_phi_metadata)
 #reopen_experiment(dfp, 'dfp', PARAMS, dfp_metadata)
 #reopen_experiment(dfp_r, 'dfpr', PARAMS, dfp_r_metadata)
 #reopen_experiment(dfp_phi, 'dfpphi', PARAMS, dfp_phi_metadata)
-
-# !ls
-
-

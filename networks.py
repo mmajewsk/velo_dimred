@@ -9,26 +9,11 @@
 # Only phi/R x=t*module/2 [channel, 1]
 
 # https://gitlab.cern.ch/mmajewsk/calina.git
-import sys
-
-sys.path.append("../calina/")
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import pytorch_lightning as pl
-from calibration_dataset import Tell1Dataset
-
-
-class MyDS(Tell1Dataset):
-    filename_format = "%Y-%m-%d"
-    filename_regex_format = r"\d{4}-\d{2}-\d{2}.csv"
-
-
-def get_dataset(path):
-    data_list = MyDS.get_filepaths_from_dir(datapath)
-    mds = MyDS(data_list, read=True)
-    return mds
 
 
 class VeloEncoder(nn.Module):
