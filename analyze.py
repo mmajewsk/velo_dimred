@@ -28,6 +28,8 @@
 
 # #### Importing required modules
 
+# +
+
 import os
 import torch
 import pytorch_lightning as pl
@@ -42,6 +44,7 @@ import plotly.express as px
 import pandas as pd
 import neptune.new as neptune
 import zipfile
+# -
 
 # #### networks.py contains our custom architectures for autoencoders. They are built upon the pl.LightningModule
 
@@ -52,13 +55,13 @@ from calina_dataset.calibration_dataset import Tell1Dataset
 
 #trainig parameters
 PARAMS = {'max_epochs': 50,
-          'learning_rate': 0.02,
-          'batch_size': 64,
+          'learning_rate': 0.05,
+          'batch_size': 16,
           'gpus': 1,
           'experiment_name': 'small-net more-epochs standarized SGD no-dropout bigger-batches relu shuffle',
           'tags': ['small-net', 'more-epochs', 'standarized', 'SGD', 'no-dropout', 'bigger-batches', 'relu', 'shuffle'],
           'source_files': ['analyze.ipynb', 'networks.py'],
-          'experiment_id': 'VEL-371'
+          'experiment_id':'VEL-371' 
 }
 
 
@@ -105,11 +108,12 @@ dfh_phi = pd.DataFrame(dfh_phi_scaled, index=dfh_phi.index, columns=dfh_phi.colu
 dfp = pd.DataFrame(dfp_scaled, index=dfp.index, columns=dfp.columns)
 dfp_r = pd.DataFrame(dfp_r_scaled, index=dfp_r.index, columns=dfp_r.columns)
 dfp_phi = pd.DataFrame(dfp_phi_scaled, index=dfp_phi.index, columns=dfp_phi.columns)
-
-
 # -
 
 # #### Creating loaders for the training.
+
+dfh_r.shape
+
 
 def make_loader(dataset):
     train, test = train_test_split(dataset, test_size=0.2)
@@ -119,8 +123,8 @@ def make_loader(dataset):
     test_data = torch.tensor(test.values, dtype=torch.float)
     train_tensor = TensorDataset(train_data, train_target)
     test_tensor = TensorDataset(test_data, test_target)
-    train_loader = DataLoader(dataset=train_tensor, shuffle=True)
-    test_loader = DataLoader(dataset=test_tensor, shuffle=True)
+    train_loader = DataLoader(dataset=train_tensor, shuffle=True, batch_size=PARAMS['batch_size'])
+    test_loader = DataLoader(dataset=test_tensor, shuffle=True, batch_size=PARAMS['batch_size'])
     return train_loader, test_loader
 
 
@@ -222,6 +226,7 @@ def reopen_experiment(dataset, datasetName, par, metadata):
     
     run = neptune.init('pawel-drabczyk/velodimred', run=PARAMS['experiment_id'], mode="read-only", capture_stderr=False, capture_stdout=False)
     run['artifacts/trained_model.ckpt'].download()
+    run['source_code/files'].download()
     with zipfile.ZipFile("files.zip","r") as zip_ref:
         zip_ref.extractall('legacy_network')
         

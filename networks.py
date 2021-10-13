@@ -20,25 +20,20 @@ class VeloEncoder(nn.Module):
     def __init__(self, input_size):
         nn.Module.__init__(self)
         self.e1 = nn.Linear(input_size, 40)
-        #self.drop1 = nn.Dropout(0.1)
         self.b1 = nn.BatchNorm1d(40)
         self.e2 = nn.Linear(40, 10)
         self.b2 = nn.BatchNorm1d(10)
-        #self.drop2 = nn.Dropout(0.1)
         self.e3 = nn.Linear(10, 2)
-        #self.drop3 = nn.Dropout(0.1)
 
     def forward(self, x):
         x = self.e1(x)
+        x = F.relu(x)
         x = self.b1(x)
-        #x = self.drop1(x)
-        x = F.relu(x)
         x = self.e2(x)
-        x = self.b2(x)
-        #x = self.drop2(x)
         x = F.relu(x)
+        x = self.b2(x)
         x = self.e3(x)
-        #x = self.drop3(x)
+        x = F.relu(x)
         return x
 
 
@@ -46,25 +41,21 @@ class VeloDecoder(nn.Module):
     def __init__(self, output_size):
         nn.Module.__init__(self)
         self.e3 = nn.Linear(2, 10)
-        #self.drop3 = nn.Dropout(0.1)
+        self.b3 = nn.BatchNorm1d(2)
         self.b2 = nn.BatchNorm1d(10)
         self.e2 = nn.Linear(10, 40)
-        #self.drop2 = nn.Dropout(0.1)
         self.b1 = nn.BatchNorm1d(40)
         self.e1 = nn.Linear(40, output_size)
-        #self.drop1 = nn.Dropout(0.1)
 
     def forward(self, x):
+        x = self.b3(x)
         x = self.e3(x)
-        #x = self.drop3(x)
+        x = F.relu(x)
         x = self.b2(x)
-        x = F.relu(x)
         x = self.e2(x)
-        #x = self.drop2(x)
-        x = self.b1(x)
         x = F.relu(x)
+        x = self.b1(x)
         x = self.e1(x)
-        #x = self.drop1(x)
         return x
 
 class VeloAutoencoderLt(pl.LightningModule):

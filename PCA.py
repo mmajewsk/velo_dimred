@@ -109,6 +109,7 @@ def scatter_data(single_data):
     alpha = 0.4
     for sensor_data_key in single_data:
         dataset = single_data[sensor_data_key]
+        print(sensor_data_key, dataset.shape)
         dataset_after_pca = full_pca(dataset,procentage_or_num_of_comp)
         scatter = plt.scatter(dataset_after_pca.iloc[:,0], dataset_after_pca.iloc[:,1], edgecolor='none', alpha=alpha,label=sensor_data_key)
         plt.legend(title="Module nr.")
@@ -142,12 +143,13 @@ import plotly.express as px
 
 d = data['pedestal']['r_phi']
 
+
+
 single_data = {k: v.drop('sensor',axis=1) for k, v in d.groupby('sensor')}
 alpha = 0.4
 thisrun = []
 for sensor_data_key in single_data:
     dataset = single_data[sensor_data_key]
-    
     dataset_after_pca = full_pca(dataset,procentage_or_num_of_comp)
     dataset_after_pca["sensor"] = str(int(sensor_data_key))
     #scatter = plt.scatter(dataset_after_pca.iloc[:,0], dataset_after_pca.iloc[:,1], edgecolor='none', alpha=alpha,label=sensor_data_key)
@@ -158,6 +160,44 @@ alldat = pd.concat(thisrun)
 
 # + pycharm={"name": "#%%\n"}
 fig = px.scatter(alldat, x="Principal component 1", y="Principal component 2", color='sensor', opacity=0.5)
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
+# -
+
+
+tmpdat = mds.dfp.df
+traindat = tmpdat[tmpdat['sensor_type']=='phi'].iloc[:,9:]
+
+traindat['sensor'] = tmpdat['sensor']
+traindat['timeplay'] = tmpdat.datetime.astype(str)
+
+gd = traindat.copy()
+gd.groupby('sensor').transform(lambda x: x.T)
+gd_sensor = gd[['sensor', 'timeplay']]
+del gd['sensor']
+del gd['timeplay']
+
+dmf = traindat.drop(['timeplay'], axis=1)
+
+
+data = StandardScaler().fit_transform(gd)
+data_transponsed = data
+pca = PCA(n_components = 2,svd_solver = 'auto')
+result = pca.fit_transform(data_transponsed)
+
+
+newdat = pd.DataFrame({'sensor': gd_sensor['sensor'], 'timeplay':gd_sensor['timeplay'], 'a':result[:,0], 'b':result[:,1]})
+
+# + pycharm={"name": "#%%\n"}
+fig = px.scatter(newdat, x="a", y="b", color='sensor', opacity=0.5)
+full_fig = fig.full_figure_for_development()
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
+
+
+# + pycharm={"name": "#%%\n"}
+fig = px.scatter(newdat, x="a", y="b", color='sensor', animation_frame='timeplay', opacity=0.5)
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
 
@@ -181,4 +221,158 @@ fig.write_html("PCA.html")
 
 
 
+
+# -
+mydata = mds.dfh.df
+
+
+mydata.iloc[:,9:]
+
+data1 = StandardScaler().fit_transform(mydata.iloc[:,9:])
+pca = PCA(n_components = 2,svd_solver = 'auto')
+result = pca.fit_transform(data1)
+
+myd = mydata.iloc[:,:9]
+myd['timeplay'] = myd.datetime.astype(str)
+
+myd['A']=result[:, 0]
+myd['B']=result[:, 1]
+
+myd[myd['sensor_type']=='R']
+
+
+
+fig = px.scatter(myd[myd['sensor_type']=='R'], x="A", y="B", color='sensor', opacity=0.5)
+full_fig = fig.full_figure_for_development()
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
+fig.write_image("pics/PCA_module_R_all.png")
+
+full_fig.layout.xaxis.range
+
+fig = px.scatter(myd[myd['sensor_type']=='R'], x="A", y="B", color='sensor', opacity=0.5, animation_frame="timeplay")
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
+
+
+getplotR
+
+getplotR = lambda x: px.scatter(myd[(myd['sensor_type']=='R') & (myd['timeplay']==x)], x="A", y="B", color='sensor', opacity=0.5,)
+
+import plotly.graph_objects as go
+def getplotR(dat):
+    partdat = myd[(myd['sensor_type']=='R') & (myd['timeplay']==dat)]
+    
+    rval = go.Scatter(x=partdat["A"], y=partdat["B"], fillcolor=partdat['sensor'], opacity=0.5)
+    return rval
+
+
+# +
+from plotly.subplots import make_subplots
+fig = make_subplots(rows=5, cols=1, shared_xaxes=True)
+
+date = '2012-07-06'
+fig['layout']['yaxis1']['title']=date
+trc = getplotR(date)
+trc.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range), yaxis_title=date)
+fig.append_trace(trc['data'][0],
+    row=1, col=1)
+
+
+date = '2012-07-30'
+fig['layout']['yaxis2']['title']=date
+trc = getplotR(date)
+trc.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range), yaxis_title=date)
+fig.append_trace(trc['data'][0],
+    row=2, col=1)
+
+date = '2012-08-01'
+fig['layout']['yaxis3']['title']=date
+trc = getplotR(date)
+trc.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range), yaxis_title=date)
+fig.append_trace(trc['data'][0],
+    row=3, col=1)
+
+date = '2012-08-02'
+fig['layout']['yaxis4']['title']=date
+trc = getplotR(date)
+trc.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range), yaxis_title=date)
+fig.append_trace(trc['data'][0],
+    row=4, col=1)
+
+date = '2012-08-14'
+trc = getplotR(date)
+trc.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range), yaxis_title=date)
+fig.append_trace(trc['data'][0],
+    row=5, col=1)
+fig.update_layout( autosize=False, width=400, height=1200,)
+
+
+fig.update_layout({
+               'xaxis1':{'range': full_fig.layout.xaxis.range},
+               'yaxis1':{'range': full_fig.layout.yaxis.range},
+
+               'xaxis2':{'range': full_fig.layout.xaxis.range},
+               'yaxis2':{'range': full_fig.layout.yaxis.range},
+
+               'xaxis3':{'range': full_fig.layout.xaxis.range},
+               'yaxis3':{'range': full_fig.layout.yaxis.range},
+
+               'xaxis4':{'range': full_fig.layout.xaxis.range},
+               'yaxis4':{'range': full_fig.layout.yaxis.range},
+
+               'xaxis5':{'range': full_fig.layout.xaxis.range},
+               'yaxis5':{'range': full_fig.layout.yaxis.range},
+}
+)
+
+
+
+fig['layout']['yaxis5']['title']=date
+fig.write_image("pics/PCA_module_R_together.png")
+fig.show()
+
+
+
+# +
+
+
+fig = getplotR('2012-07-30')
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
+fig.write_image("pics/PCA_module_R_2.png")
+
+fig = getplotR('2012-08-01')
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
+fig.write_image("pics/PCA_module_R_3.png")
+
+fig = getplotR('2012-08-02')
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
+fig.write_image("pics/PCA_module_R_4.png")
+
+fig = getplotR('2012-08-14')
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
+fig.write_image("pics/PCA_module_R_5.png")
+
+
+fig.write_image("pics/PCA_module_R_1.png")
+# -
+
+fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5)
+full_fig = fig.full_figure_for_development()
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
+fig.write_image("pics/PCA_module_phi_all.png")
+
+fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5, animation_frame="timeplay")
+fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
+
+
+
+# + pycharm={"name": "#%%\n"}
+fig = px.scatter(alldat, x="Principal component 1", y="Principal component 2", color='sensor', opacity=0.5)
+fig.show(renderer="notebook") 
+fig.write_html("PCA.html")
 
