@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.10.1
+#       jupytext_version: 1.11.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -502,12 +502,19 @@ alldat11.loc[selected_points, 'alpha'] = 1.0
 fig = px.scatter(alldat11[alldat11.sensor == '11'], x="Principal component 1", y="Principal component 2", color='sensor', opacity=0.3, hover_name=alldat11[alldat11.sensor=='11'].index, width=600, height=600)
 # -
 
+alldsel.loc['Channel 543']
+
 fig, axe = plt.subplots(1,1, figsize=(6,6))
 axe.scatter(x=alldat11["Principal component 1"], y=alldat11["Principal component 2"], color='blue')
 alldsel = alldat11[alldat11.sensor == 'other']
 axe.scatter(x=alldsel["Principal component 1"], y=alldsel["Principal component 2"], color='red')
 for i, txt in enumerate(selected_points):
-    axe.annotate(txt, (alldsel.iloc[i, "Principal component 1"], alldsel.loc[i,"Principal component 1"]))
+    x,y = (alldsel.loc[txt, "Principal component 1"], alldsel.loc[txt,"Principal component 2"])
+    dx, dy = [(-1.5,2),(1.2,1.5),(0,-1.2)][i]
+    axe.annotate(txt, 
+                 (x,y),
+                 (x+dx,y+dy),
+                arrowprops=dict(arrowstyle="->", color='y', lw=3))
 axe.grid()
 
 fig, axe = plt.subplots(1,1,figsize=(6,3))
