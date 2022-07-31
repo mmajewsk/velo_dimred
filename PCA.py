@@ -209,6 +209,8 @@ result = pca.fit_transform(data_transponsed)
 
 newdat = pd.DataFrame({'sensor': gd_sensor['sensor'], 'timeplay':gd_sensor['timeplay'], 'a':result[:,0], 'b':result[:,1]})
 
+
+
 # + pycharm={"name": "#%%\n"}
 fig = px.scatter(newdat, x="a", y="b", color='sensor', opacity=0.5)
 full_fig = fig.full_figure_for_development()
@@ -221,29 +223,9 @@ fig = px.scatter(newdat, x="a", y="b", color='sensor', animation_frame='timeplay
 fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
-
-
-# +
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # -
+
+
 mydata = mds.dfh.df
 
 
@@ -261,15 +243,29 @@ myd['B']=result[:, 1]
 
 myd[myd['sensor_type']=='R']
 
+badind = ((myd.datetime == '2012-07-30') | (myd.datetime == '2012-08-01'))
+myd['symbol'] = 'other'
+myd['symbol'][badind] = 'anomaly'
 
 
-fig = px.scatter(myd[myd['sensor_type']=='R'], x="A", y="B", color='sensor', opacity=0.5)
+
+fig = px.scatter(myd[myd['sensor_type']=='R'], x="A", y="B", color='sensor', opacity=0.5, symbol='symbol', symbol_sequence=symseq)
+fig.update_layout(legend=dict(
+yanchor="top",
+y=0.99,
+xanchor="left",
+x=0.01))
 full_fig = fig.full_figure_for_development()
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
 fig.write_image("pics/PCA_module_R_all.png")
 
-fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5)
+fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5,  symbol='symbol', symbol_sequence=symseq)
+fig.update_layout(legend=dict(
+yanchor="top",
+y=0.99,
+xanchor="left",
+x=0.01))
 full_fig = fig.full_figure_for_development()
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
@@ -424,7 +420,15 @@ fig.write_image("pics/PCA_module_R_5.png")
 fig.write_image("pics/PCA_module_R_1.png")
 # -
 
-fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5)
+
+
+symseq = ['circle', 'x']
+fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5, symbol='symbol', symbol_sequence=symseq)
+fig.update_layout(legend=dict(
+yanchor="top",
+y=0.99,
+xanchor="left",
+x=0.01))
 full_fig = fig.full_figure_for_development()
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
