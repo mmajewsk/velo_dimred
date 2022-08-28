@@ -470,12 +470,33 @@ yaxisrange = dict(range=minmax(alldat["Principal component 2"]))
 
 # + pycharm={"name": "#%%\n"}
 def produce2plot(data, xaxisrange, yaxisrange):
+    from plotly.graph_objects import Layout
+
     fig = px.scatter(data, x="Principal component 1", y="Principal component 2", color='sensor', opacity=0.5, width=600, height=600)
+    fig.update_xaxes(
+        title_font=dict(size=15, family='Courier', color='black'),
+        showgrid=True,
+        gridwidth=1,
+        gridcolor='gray',
+        zerolinewidth=1,
+        zerolinecolor='gray',
+        linecolor='black',
+        mirror=True,
+    )
     fig.update_yaxes(
+        title_font=dict(size=15, family='Courier', color='black'),         
         scaleanchor = "x",
         scaleratio = 1,
-      )
-    fig.update_layout(xaxis=xaxisrange,yaxis=yaxisrange)
+        showgrid=True,
+        gridwidth=1,
+        gridcolor='gray',
+        zerolinewidth=1,
+        zerolinecolor='gray',
+        linecolor='black',
+        mirror=True,
+    )
+    fig.update_layout(xaxis=xaxisrange, yaxis=yaxisrange, plot_bgcolor='rgba(0,0,0,0)')
+    
     #fig.show(renderer="notebook") 
     #fig.write_image("pics/PCA_pedestals.png")
     return fig
@@ -487,8 +508,6 @@ dats = [alldat1, alldat2, alldat3, alldat4]
 for i, d in enumerate(dats):
     fig = produce2plot(d, xaxisrange, yaxisrange)
     fig.write_image('pics/PCA_pedestals_{}_{}.png'.format(datype, i))
-
-alldat11
 
 selected_points = ['Channel 543','Channel 1899','Channel 322']
 
