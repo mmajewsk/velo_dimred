@@ -255,10 +255,33 @@ yanchor="top",
 y=0.99,
 xanchor="left",
 x=0.01))
+fig.update_xaxes(
+    title_font=dict(size=15, family='Courier', color='black'),
+    showgrid=True,
+    gridwidth=1,
+    gridcolor='rgb(180,180,180)',
+    zerolinewidth=1.5,
+    zerolinecolor='rgb(180,180,180)',
+    #linecolor='black',
+    #mirror=True,
+)
+fig.update_yaxes(
+    title_font=dict(size=15, family='Courier', color='black'),         
+    #scaleanchor = "x",
+    #scaleratio = 1,
+    showgrid=True,
+    gridwidth=1,
+    gridcolor='rgb(180,180,180)',
+    zerolinewidth=1.5,
+    zerolinecolor='rgb(180,180,180)',
+    #linecolor='black',
+    #mirror=True,
+)
 full_fig = fig.full_figure_for_development()
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
 fig.write_image("pics/PCA_module_R_all.png")
+fig.write_image("pics/PCA_module_R_all.pdf")
 
 fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5,  symbol='symbol', symbol_sequence=symseq)
 fig.update_layout(legend=dict(
@@ -266,10 +289,33 @@ yanchor="top",
 y=0.99,
 xanchor="left",
 x=0.01))
+fig.update_xaxes(
+    title_font=dict(size=15, family='Courier', color='black'),
+    showgrid=True,
+    gridwidth=1,
+    gridcolor='rgb(180,180,180)',
+    zerolinewidth=1.5,
+    zerolinecolor='rgb(180,180,180)',
+    #linecolor='black',
+    #mirror=True,
+)
+fig.update_yaxes(
+    title_font=dict(size=15, family='Courier', color='black'),         
+    #scaleanchor = "x",
+    #scaleratio = 1,
+    showgrid=True,
+    gridwidth=1,
+    gridcolor='rgb(180,180,180)',
+    zerolinewidth=1.5,
+    zerolinecolor='rgb(180,180,180)',
+    #linecolor='black',
+    #mirror=True,
+)
 full_fig = fig.full_figure_for_development()
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
 fig.write_image("pics/PCA_module_phi_all.png")
+fig.write_image("pics/PCA_module_phi_all.pdf")
 
 full_fig.layout.xaxis.range
 
@@ -315,12 +361,32 @@ def maketogetherplot(t):
         y = (i//5)+1
         # trc = getplotR(date)
         trc.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range), yaxis_title=dat)
+        fig.update_xaxes(
+            title_font=dict(size=15, family='Courier', color='black'),
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='rgb(180,180,180)',
+            zerolinewidth=1.5,
+            zerolinecolor='rgb(180,180,180)',
+            #linecolor='black',
+            #mirror=True,
+        )
+        fig.update_yaxes(
+            title_font=dict(size=15, family='Courier', color='black'),         
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='rgb(180,180,180)',
+            zerolinewidth=1.5,
+            zerolinecolor='rgb(180,180,180)',
+            #linecolor='black',
+            #mirror=True,
+        )
         fig.append_trace(trc['data'][0],col=x, row=y)
         fig['layout']['yaxis{}'.format(i+1)]['range']=full_fig.layout.yaxis.range
         fig['layout']['xaxis{}'.format(i+1)]['range']=full_fig.layout.xaxis.range
     fig.update_layout( autosize=False, width=1200, height=600,)
 
-    fig.write_image("pics/PCA_module_{}_together.png".format(t))
+    fig.write_image("pics/PCA_module_{}_together.pdf".format(t))
     fig.show()
 
 
@@ -422,6 +488,7 @@ fig.write_image("pics/PCA_module_R_1.png")
 
 
 
+# +
 symseq = ['circle', 'x']
 fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5, symbol='symbol', symbol_sequence=symseq)
 fig.update_layout(legend=dict(
@@ -429,10 +496,18 @@ yanchor="top",
 y=0.99,
 xanchor="left",
 x=0.01))
+fig.update_xaxes(
+    title_font=dict(size=15, family='Courier', color='black'),
+)
+fig.update_yaxes(
+    title_font=dict(size=15, family='Courier', color='black'),         
+
+)
 full_fig = fig.full_figure_for_development()
 fig.show(renderer="notebook") 
 fig.write_html("PCA.html")
-fig.write_image("pics/PCA_module_phi_all.png")
+fig.write_image("pics/PCA_module_phi_all.pdf")
+# -
 
 fig = px.scatter(myd[myd['sensor_type']=='phi'], x="A", y="B", color='sensor', opacity=0.5, animation_frame="timeplay")
 fig.update_layout(xaxis=dict(range=full_fig.layout.xaxis.range),yaxis=dict(range=full_fig.layout.yaxis.range))
@@ -477,11 +552,11 @@ def produce2plot(data, xaxisrange, yaxisrange):
         title_font=dict(size=15, family='Courier', color='black'),
         showgrid=True,
         gridwidth=1,
-        gridcolor='gray',
-        zerolinewidth=1,
-        zerolinecolor='gray',
-        linecolor='black',
-        mirror=True,
+        gridcolor='rgb(180,180,180)',
+        zerolinewidth=1.5,
+        zerolinecolor='rgb(180,180,180)',
+        #linecolor='black',
+        #mirror=True,
     )
     fig.update_yaxes(
         title_font=dict(size=15, family='Courier', color='black'),         
@@ -489,13 +564,14 @@ def produce2plot(data, xaxisrange, yaxisrange):
         scaleratio = 1,
         showgrid=True,
         gridwidth=1,
-        gridcolor='gray',
-        zerolinewidth=1,
-        zerolinecolor='gray',
-        linecolor='black',
-        mirror=True,
+        gridcolor='rgb(180,180,180)',
+        zerolinewidth=1.5,
+        zerolinecolor='rgb(180,180,180)',
+        #linecolor='black',
+        #mirror=True,
     )
-    fig.update_layout(xaxis=xaxisrange, yaxis=yaxisrange, plot_bgcolor='rgba(0,0,0,0)')
+    #fig.update_layout(xaxis=xaxisrange, yaxis=yaxisrange, plot_bgcolor='rgba(0,0,0,0)')
+    fig.update_layout(xaxis=xaxisrange, yaxis=yaxisrange)
     
     #fig.show(renderer="notebook") 
     #fig.write_image("pics/PCA_pedestals.png")
@@ -508,6 +584,7 @@ dats = [alldat1, alldat2, alldat3, alldat4]
 for i, d in enumerate(dats):
     fig = produce2plot(d, xaxisrange, yaxisrange)
     fig.write_image('pics/PCA_pedestals_{}_{}.png'.format(datype, i))
+    fig.write_image('pics/PCA_pedestals_{}_{}.pdf'.format(datype, i))
 
 selected_points = ['Channel 543','Channel 1899','Channel 322']
 
